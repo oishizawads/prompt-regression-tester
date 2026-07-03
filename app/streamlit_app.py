@@ -118,7 +118,9 @@ def main() -> None:
         page_icon="🧪",
         layout="wide",
     )
-    st.title("🧪 Prompt Regression Tester")
+    from src.brand import apply_brand, hero
+    apply_brand(st)
+    hero(st, "LLM Evaluation", "Prompt Regression Tester", "プロンプト変更の前後で、出力品質が落ちたケースを検出します。")
     st.caption(
         "プロンプト変更の前後で出力品質が落ちたケース（regression）を検出します。"
         "データは合成サンプルであり、実在の LLM 品質を保証するものではありません。"
