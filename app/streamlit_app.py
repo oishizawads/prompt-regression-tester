@@ -118,16 +118,25 @@ def main() -> None:
         page_icon="🧪",
         layout="wide",
     )
-    from src.brand import apply_brand, hero
+    from src.brand import (
+        apply_brand,
+        footer_backlink,
+        hero,
+        section,
+        sidebar_header,
+    show_table,
+)
     apply_brand(st)
-    hero(st, "LLM Evaluation", "Prompt Regression Tester", "プロンプト変更の前後で、出力品質が落ちたケースを検出します。")
-    st.caption(
-        "プロンプト変更の前後で出力品質が落ちたケース（regression）を検出します。"
-        "データは合成サンプルであり、実在の LLM 品質を保証するものではありません。"
+    hero(
+        st,
+        "LLM EVALUATION",
+        "Prompt Regression Tester",
+        "プロンプト変更の前後で、出力品質が落ちたケースを検出します。",
+        chips=["Python", "pandas", "Similarity", "stlite"],
     )
 
     with st.sidebar:
-        st.header("設定")
+        sidebar_header(st, "Prompt Regression Tester")
         source = st.radio(
             "データソース",
             ["サンプル (CSV)", "サンプル (JSON)", "ファイルをアップロード"],
@@ -188,24 +197,23 @@ def main() -> None:
     col_b.metric("fail", fail_n)
     col_c.metric("pass", len(cases) - fail_n)
 
-    st.subheader("スコア比較（fail を上位表示）")
-    st.dataframe(
-        score_df,
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "is_fail": st.column_config.CheckboxColumn("fail", disabled=True),
-            "similarity": st.column_config.NumberColumn("類似度", format="%.3f"),
-            "keyword_hit_rate": st.column_config.NumberColumn(
-                "キーワード一致率", format="%.3f"
-            ),
-        },
+    section(st, "SCORES", "スコア比較（fail を上位表示）")
+    show_table(
+        st,
+        score_df.rename(
+            columns={
+                "is_fail": "fail",
+                "similarity": "類似度",
+                "keyword_hit_rate": "キーワード一致率",
+            }
+        ),
+        float_fmt="{:.3f}",
     )
 
-    st.subheader("テストケース一覧")
-    st.dataframe(df, use_container_width=True, hide_index=True)
+    section(st, "CASES", "テストケース一覧")
+    show_table(st, df)
 
-    st.subheader("ケース詳細")
+    section(st, "DETAIL", "ケース詳細")
     options = [c.case_id for c in cases]
     selected_id = st.selectbox("ケースを選択", options, index=0)
     selected = next((c for c in cases if c.case_id == selected_id), None)
@@ -251,9 +259,7 @@ def main() -> None:
     st.markdown("**差分（旧 vs 新 出力）**")
     _render_diff(selected)
 
-    st.caption(
-        "合成テストケースであり実在の LLM 品質を保証しない / API キー不要で動作"
-    )
+    footer_backlink(st, repo="prompt-regression-tester")
 
 
 if __name__ == "__main__":
